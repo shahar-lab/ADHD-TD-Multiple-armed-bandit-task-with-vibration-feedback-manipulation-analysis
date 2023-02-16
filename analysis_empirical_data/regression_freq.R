@@ -1,6 +1,8 @@
+# Last year's model
+
 rm(list=ls())
 source('./functions/my_packages.R')
-load('G:/My Drive/Xbox/data/empirical_data/df.rdata')
+load('./empirical_data/df.rdata')
 
 
 model<-glmer(stay~ reward_oneback*condition_oneback +(reward_oneback*condition_oneback| subject), 
