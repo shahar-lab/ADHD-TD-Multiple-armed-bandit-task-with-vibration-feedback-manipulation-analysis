@@ -23,10 +23,10 @@ ggplot(df, aes(x = reward_oneback, y=st,color=group))+geom_point()+geom_line()
 
 # Create glmer accuracy model
 
-model<-glmer(stay~ reward_oneback*condition_oneback*group +(reward_oneback*condition_oneback| subject), 
+model<-glmer(stay~ reward_oneback*condition_oneback*group +(1|subject),
              data = df, 
              family = binomial,
-             control = glmerControl(optimizer = "bobyqa"), nAGQ = 1)
+             control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
 
 plot(effect('reward_oneback',model))

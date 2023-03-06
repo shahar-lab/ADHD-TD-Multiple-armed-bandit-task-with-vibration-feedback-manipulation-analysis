@@ -12,7 +12,9 @@ df= df %>% mutate(stay = (choice_card == lag(choice_card))*1,
                   accuracy = (exp_value_chosen > exp_value_unchosen)*1,
                   stay_key = (choice_key == lag(choice_key))*1,
                   delta_exp_value = abs(exp_value_chosen - exp_value_unchosen),
+                  condition = factor(condition),
                   condition_oneback =lag(condition),
+                  group = factor(group)
 )
 
 df= df %>% mutate(abort = ( rt < 0.2 | rt > 4 | is.na(rt)))
