@@ -22,26 +22,34 @@ ggplot(df|> filter(trial == 1)|>
          #group_by(subject)|> 
          summarise(acc = mean(accuracy)), aes(x = subject, y=acc))+geom_point()
 
-# Create glmer accuracy model
 
-model<-glmer(accuracy~ trial*condition*group +(trial*condition| subject), 
+# Organize data:
+
+df$condition = relevel(df$condition, ref = 'off') 
+contrasts(df$condition)
+df$group = relevel(df$group, ref = 'td')
+contrasts(df$group)
+
+# Create glmer accuracy model:
+
+accuracy_model1<-glmer(accuracy~ trial*condition*group +(trial*condition| subject), 
              data = df, 
              family = binomial,
              control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
+# View results:
 
-plot(effect('trial',model))
-plot(effect('condition',model))
-plot(effect('condition:group',model,xlevels=2))
-plot(effect('group',model))
+plot(effect('trial',accuracy_model1))
+plot(effect('condition',accuracy_model1))
+plot(effect('condition:group',accuracy_model1,xlevels=2))
+plot(effect('group',accuracy_model1))
 
+summary(accuracy_model1)
+anova(accuracy_model1)
 
-summary(model)
-anova(model)
+# Create brm accuracy model:
 
-# Create brm accuracy model
-
-model<-brm(accuracy ~ trial*condition*group +(trial*condition| subject), 
+accuracy_model2<-brm(accuracy ~ trial*condition*group +(trial*condition| subject), 
            data = df ,
            family = bernoulli,
            warmup = 1000,
@@ -50,16 +58,17 @@ model<-brm(accuracy ~ trial*condition*group +(trial*condition| subject),
            chains=4,
            backend='cmdstan')
 
-describe_posterior(model)
+# View results:
+conditional_effects(accuracy_model2)
+conditions <- make_conditions(accuracy_model2, "condition")
+conditional_effects(accuracy_model2, "trial:group", conditions = conditions)
 
-# Create brm time model
+describe_posterior(accuracy_model2)
 
-df$condition = relevel(df$condition, ref = ' vibration off') 
-contrasts(df$condition)
-df$group = relevel(df$group, ref = 'td')
-contrasts(df$group)
 
-model<-brm(accuracy ~ delta_exp_value*condition*group, 
+# Create brm accuracy by difficulty model:
+
+accuracy_model3<-brm(accuracy ~ delta_exp_value*condition*group, 
            data = df ,
            family = bernoulli,
            warmup = 500,
@@ -68,26 +77,11 @@ model<-brm(accuracy ~ delta_exp_value*condition*group,
            chains=4,
            backend='cmdstan')
 
-conditional_effects(model)
+# View results:
+conditional_effects(accuracy_model3)
+conditions <- make_conditions(accuracy_model3, "condition")
+conditional_effects(accuracy_model3, "delta_exp_value:group", conditions = conditions)
 
-conditional_effects(
-  model,
-  'delta_exp_value:group',
-  int_conditions = list(condition=c(' vibration off'))
-)
-
-conditional_effects(
-  model,
-  'delta_exp_value:group',
-  int_conditions = list(condition=c(' vibration during outcome'))
-)
-
-conditional_effects(
-  model,
-  'delta_exp_value:group',
-  int_conditions = list(condition=c(' vibration during choice'))
-)
-
-describe_posterior(model)
+describe_posterior(accuracy_model3)
 
 

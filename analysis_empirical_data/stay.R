@@ -21,26 +21,34 @@ df =
 ggplot(df, aes(x = reward_oneback, y=st))+geom_line()
 ggplot(df, aes(x = reward_oneback, y=st,color=group))+geom_point()+geom_line()
 
-# Create glmer accuracy model
+# Organize data:
+df$condition = relevel(df$condition, ref = 'off') 
+contrasts(df$condition)
+df$group = relevel(df$group, ref = 'td')
+contrasts(df$group)
 
-model<-glmer(stay~ reward_oneback*condition_oneback*group +(1|subject),
+# Create glmer stay model:
+
+stay_model1<-glmer(stay~ reward_oneback*condition_oneback*group +(1|subject),
              data = df, 
              family = binomial,
              control = glmerControl(optimizer = "bobyqa"), nAGQ = 0)
 
+# View results:
 
-plot(effect('reward_oneback',model))
-plot(effect('condition_oneback',model))
-plot(effect('group',model))
-plot(effect('reward_oneback:condition_oneback:group',model,xlevels=2))
+plot(effect('reward_oneback',stay_model1))
+plot(effect('condition_oneback',stay_model1))
+plot(effect('group',stay_model1))
+plot(effect('reward_oneback:condition_oneback:group',stay_model1,xlevels=2))
 
 
-summary(model)
-anova(model)
+summary(stay_model1)
+anova(stay_model1)
 
-# Create brm accuracy model
 
-model<-brm(stay ~ reward_oneback*condition_oneback*group +(reward_oneback*condition_oneback| subject), 
+# Create brm stay model:
+
+stay_model2<-brm(stay ~ reward_oneback*condition_oneback*group +(reward_oneback*condition_oneback| subject), 
            data = df ,
            family = bernoulli,
            warmup = 1000,
@@ -49,6 +57,12 @@ model<-brm(stay ~ reward_oneback*condition_oneback*group +(reward_oneback*condit
            chains=4,
            backend='cmdstan')
 
-describe_posterior(model)
+# View results:
+
+conditional_effects(stay_model2)
+conditions <- make_conditions(stay_model2, "condition_oneback")
+conditional_effects(stay_model2, "reward_oneback:group", conditions = conditions)
+
+describe_posterior(stay_model2)
 
 
