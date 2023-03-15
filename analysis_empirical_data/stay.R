@@ -48,11 +48,11 @@ anova(stay_model1)
 
 # Create brm stay model:
 
-stay_model2<-brm(stay ~ reward_oneback*condition_oneback*group +(reward_oneback*condition_oneback| subject), 
+stay_model2<-brm(stay ~ reward_oneback*condition*group +(reward_oneback*condition| subject), 
            data = df ,
-           family = bernoulli,
+           #family = bernoulli,
            warmup = 1000,
-           iter = 2000,    
+           iter = 1200,    
            cores =4,
            chains=4,
            backend='cmdstan')
@@ -60,7 +60,7 @@ stay_model2<-brm(stay ~ reward_oneback*condition_oneback*group +(reward_oneback*
 # View results:
 
 conditional_effects(stay_model2)
-conditions <- make_conditions(stay_model2, "condition_oneback")
+conditions <- make_conditions(stay_model2, "condition")
 conditional_effects(stay_model2, "reward_oneback:group", conditions = conditions)
 
 describe_posterior(stay_model2)

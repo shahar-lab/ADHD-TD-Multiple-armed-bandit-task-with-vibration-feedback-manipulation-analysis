@@ -41,8 +41,8 @@ describe_posterior(time_model1)
 
 # Create brm time by reward model:
 
-time_model2 <-brm(rt ~ reward_oneback*condition_oneback*group +(reward_oneback*condition_oneback| subject), 
-           data = df,
+time_model2 <-brm(rt ~ reward_oneback*condition*group +(reward_oneback*condition| subject), 
+           data = df |> filter(stay == 100),
            family = exgaussian,
            warmup = 500,
            iter = 700,    
@@ -53,7 +53,7 @@ time_model2 <-brm(rt ~ reward_oneback*condition_oneback*group +(reward_oneback*c
 # View results:
 
 conditional_effects(time_model2)
-conditions <- make_conditions(time_model2, "condition_oneback")
+conditions <- make_conditions(time_model2, "condition")
 conditional_effects(time_model2, "reward_oneback:group", conditions = conditions)
 
 describe_posterior(time_model2)

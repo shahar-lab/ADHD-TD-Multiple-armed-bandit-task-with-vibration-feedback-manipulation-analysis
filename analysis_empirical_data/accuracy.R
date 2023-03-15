@@ -51,9 +51,9 @@ anova(accuracy_model1)
 
 accuracy_model2<-brm(accuracy ~ trial*condition*group +(trial*condition| subject), 
            data = df ,
-           family = bernoulli,
+           #family = bernoulli,
            warmup = 1000,
-           iter = 2000,    
+           iter = 1200,    
            cores =4,
            chains=4,
            backend='cmdstan')
