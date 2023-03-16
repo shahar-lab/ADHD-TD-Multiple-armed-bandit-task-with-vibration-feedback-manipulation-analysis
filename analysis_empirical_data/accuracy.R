@@ -84,4 +84,25 @@ conditional_effects(accuracy_model3, "delta_exp_value:group", conditions = condi
 
 describe_posterior(accuracy_model3)
 
+### Accuracy by phases:
+
+# Create brm accuracy by phases model:
+
+accuracy_model4<-brm(accuracy ~ phase*condition*group +(phase*condition| subject), 
+                     data = df ,
+                     #family = bernoulli,
+                     warmup = 1000,
+                     iter = 1200,    
+                     cores =4,
+                     chains=4,
+                     backend='cmdstan')
+
+# View results:
+conditional_effects(accuracy_model4)
+conditions <- make_conditions(accuracy_model4, "condition")
+conditional_effects(accuracy_model4, "phase:group", conditions = conditions)
+
+describe_posterior(accuracy_model4)
+
+
 

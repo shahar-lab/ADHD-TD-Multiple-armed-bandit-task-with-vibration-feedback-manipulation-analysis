@@ -14,7 +14,9 @@ df= df %>% mutate(stay = (choice_card == lag(choice_card))*1,
                   delta_exp_value = abs(exp_value_chosen - exp_value_unchosen),
                   condition = factor(condition),
                   condition_oneback =lag(condition),
-                  group = factor(group)
+                  group = factor(group),
+                  phase = (trial <= 25)*0,
+                  phase = (trial > 25)*1
 )
 
 df= df %>% mutate(abort = ( rt < 0.2 | rt > 4 | is.na(rt)))
