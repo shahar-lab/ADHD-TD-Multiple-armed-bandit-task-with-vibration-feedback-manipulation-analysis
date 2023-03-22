@@ -17,10 +17,10 @@ library(cmdstanr)
 #  group_by(trial,condition,group) |>
 #  summarise(acc = mean(accuracy))
 
-ggplot(df, aes(x = trial, y=acc))+geom_line()
-ggplot(df|> filter(trial == 1)|>
+#ggplot(df, aes(x = trial, y=acc))+geom_line()
+#ggplot(df|> filter(trial == 1)|>
          #group_by(subject)|> 
-         summarise(acc = mean(accuracy)), aes(x = subject, y=acc))+geom_point()
+#         summarise(acc = mean(accuracy)), aes(x = subject, y=acc))+geom_point()
 
 
 # Organize data:
@@ -88,7 +88,7 @@ describe_posterior(accuracy_model3)
 
 # Create brm accuracy by phases model:
 
-accuracy_model4<-brm(accuracy ~ phase*condition*group +(phase*condition| subject), 
+accuracy_model4<-brm(accuracy ~ block_phase*condition*group +(block_phase*condition| subject), 
                      data = df ,
                      #family = bernoulli,
                      warmup = 1000,
@@ -100,7 +100,7 @@ accuracy_model4<-brm(accuracy ~ phase*condition*group +(phase*condition| subject
 # View results:
 conditional_effects(accuracy_model4)
 conditions <- make_conditions(accuracy_model4, "condition")
-conditional_effects(accuracy_model4, "phase:group", conditions = conditions)
+conditional_effects(accuracy_model4, "block_phase:group", conditions = conditions)
 
 describe_posterior(accuracy_model4)
 
