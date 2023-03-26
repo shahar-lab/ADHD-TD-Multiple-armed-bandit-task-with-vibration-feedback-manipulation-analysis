@@ -91,8 +91,8 @@ describe_posterior(accuracy_model3)
 accuracy_model4<-brm(accuracy ~ block_phase*condition*group +(block_phase*condition| subject), 
                      data = df ,
                      #family = bernoulli,
-                     warmup = 1000,
-                     iter = 1200,    
+                     warmup = 2000,
+                     iter = 3000,    
                      cores =4,
                      chains=4,
                      backend='cmdstan')

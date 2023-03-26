@@ -16,7 +16,8 @@ df= df %>% mutate(stay = (choice_card == lag(choice_card))*1,
                   condition_oneback =lag(condition),
                   group = factor(group),
                   block_phase = (trial <= 25)*0,
-                  block_phase = (trial > 25)*1
+                  block_phase = (trial > 25)*1,
+                  block_phase = factor(block_phase,levels = c(0,1), labels = c('first_half','second_half'))
 )
 
 df= df %>% mutate(abort = ( rt < 0.2 | rt > 4 | is.na(rt)))

@@ -23,10 +23,10 @@ contrasts(df$group)
 # Create brm response time by difficulty model:
 
 time_model1<-brm(rt ~ delta_exp_value*condition*group +(delta_exp_value*condition| subject),
-           data = df,
+           data = df|>filter(block_phase=='second_half'),
            family = exgaussian,
-           warmup = 500,
-           iter = 700,    
+           warmup = 2000,
+           iter = 3000,    
            cores =4,
            chains=4,
            backend='cmdstan')
