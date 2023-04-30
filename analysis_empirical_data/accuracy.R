@@ -9,6 +9,7 @@ library(brms)
 library(rstan)
 library(bayestestR)
 library(cmdstanr)
+library(lme4)
 
 # View accuracy results:
 #library(dplyr)
@@ -54,8 +55,8 @@ accuracy_model2<-brm(accuracy ~ trial*condition*group +(trial*condition| subject
            #family = bernoulli,
            warmup = 1000,
            iter = 1200,    
-           cores =4,
-           chains=4,
+           cores = 4,
+           chains = 4,
            backend='cmdstan')
 
 # View results:
@@ -73,8 +74,8 @@ accuracy_model3<-brm(accuracy ~ delta_exp_value*condition*group,
            family = bernoulli,
            warmup = 500,
            iter = 700,    
-           cores =4,
-           chains=4,
+           cores = 4,
+           chains = 4,
            backend='cmdstan')
 
 # View results:
@@ -93,8 +94,8 @@ accuracy_model4<-brm(accuracy ~ block_phase*condition*group +(block_phase*condit
                      #family = bernoulli,
                      warmup = 2000,
                      iter = 3000,    
-                     cores =4,
-                     chains=4,
+                     cores = 4,
+                     chains = 4,
                      backend='cmdstan')
 
 # View results:
@@ -102,7 +103,8 @@ conditional_effects(accuracy_model4)
 conditions <- make_conditions(accuracy_model4, "condition")
 conditional_effects(accuracy_model4, "block_phase:group", conditions = conditions)
 
-describe_posterior(accuracy_model4)
+bayestestR::describe_posterior(accuracy_model4, ci=(.89))
+#describe_posterior(accuracy_model4)
 
 
 

@@ -27,8 +27,8 @@ time_model1<-brm(rt ~ delta_exp_value*condition*group +(delta_exp_value*conditio
            family = exgaussian,
            warmup = 2000,
            iter = 3000,    
-           cores =4,
-           chains=4,
+           cores = 4,
+           chains = 4,
            backend='cmdstan')
 
 # View results:
@@ -37,7 +37,8 @@ conditional_effects(time_model1)
 conditions <- make_conditions(time_model1, "condition")
 conditional_effects(time_model1, "delta_exp_value:group", conditions = conditions)
 
-describe_posterior(time_model1)
+bayestestR::describe_posterior(time_model1, ci=(.89))
+#describe_posterior(time_model1)
 
 # Create brm time by reward model:
 
@@ -46,8 +47,8 @@ time_model2 <-brm(rt ~ reward_oneback*condition*group +(reward_oneback*condition
            family = exgaussian,
            warmup = 500,
            iter = 700,    
-           cores =4,
-           chains=4,
+           cores = 4,
+           chains = 4,
            backend='cmdstan')
 
 # View results:
