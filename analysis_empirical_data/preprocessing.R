@@ -1,6 +1,10 @@
 rm(list=ls())
 
 df<- read.csv('./data/empirical_data/df_raw.csv')
+bio = read.csv('./data/empirical_data/bio.csv')
+bio = bio|>mutate(ICAR =str_sub(ICAR,1,-2))
+icar = as.numeric(bio[1:43,'ICAR'])
+
 library(dplyr)
 
 df <-df %>% filter(block_type==' test')
@@ -17,7 +21,10 @@ df= df %>% mutate(stay = (choice_card == lag(choice_card))*1,
                   group = factor(group),
                   block_phase = (trial <= 25)*0,
                   block_phase = (trial > 25)*1,
-                  block_phase = factor(block_phase,levels = c(0,1), labels = c('first_half','second_half'))
+                  block_phase = factor(block_phase,levels = c(0,1), labels = c('first_half','second_half')),
+                  delta_level = (delta_exp_value <= 0.15)*0,
+                  delta_level = (delta_exp_value > 0.15)*1,
+                  delta_level = factor(delta_level,levels = c(0,1), labels = c('hard','easy'))
 )
 
 df= df %>% mutate(abort = ( rt < 0.2 | rt > 4 | is.na(rt)))

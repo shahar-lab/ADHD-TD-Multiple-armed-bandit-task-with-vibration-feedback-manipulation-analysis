@@ -10,6 +10,7 @@ library(rstan)
 library(bayestestR)
 library(cmdstanr)
 library(lme4)
+library(emmeans)
 
 # View accuracy results:
 #library(dplyr)
@@ -98,6 +99,22 @@ accuracy_model4<-brm(accuracy ~ block_phase*condition*group +(block_phase*condit
                      chains = 4,
                      backend='cmdstan')
 
+# emmeans
+
+em=emmeans::emmeans(accuracy_model4,~block_phase*condition*group)
+cont= emmeans::contrast(em, list('off_adhd'=c(0,0,0,0,0,0,-1,1,0,0,0,0),
+                                 'off_td'=c(-1,1,0,0,0,0,0,0,0,0,0,0),
+                                 'off'=c(-1,1,0,0,0,0,1,-1,0,0,0,0),
+                                 'choice_adhd'=c(0,0,0,0,0,0,0,0,-1,1,0,0),
+                                 'choice_td'=c(0,0,-1,1,0,0,0,0,0,0,0,0),
+                                 'choice'=c(0,0,-1,1,0,0,0,0,-1,1,0,0),
+                                 'outcome_adhd'=c(0,0,0,0,0,0,0,0,0,0,-1,1),
+                                 'outcome_td'=c(0,0,0,0,-1,1,0,0,0,0,0,0),
+                                 'outcome'=c(0,0,0,0,-1,1,0,0,0,0,1,-1)
+                                 ))
+
+hpd.summary(cont,0.89)
+
 # View results:
 conditional_effects(accuracy_model4)
 conditions <- make_conditions(accuracy_model4, "condition")
@@ -107,4 +124,47 @@ bayestestR::describe_posterior(accuracy_model4, ci=(.89))
 #describe_posterior(accuracy_model4)
 
 
+# Accuracy - Vibration During Outcome:
+
+accuracy_model5<-brm(accuracy ~ block_phase*group +(block_phase| subject), 
+                     data = df|>filter(condition=='outcome'),
+                     #family = bernoulli,
+                     warmup = 2000,
+                     iter = 3000,    
+                     cores = 4,
+                     chains = 4,
+                     backend='cmdstan')
+
+# View results:
+conditional_effects(accuracy_model5)
+bayestestR::describe_posterior(accuracy_model5, ci=(.89))
+
+
+# Accuracy - Phases:
+
+accuracy_model6<-brm(accuracy ~ block_phase +(block_phase| subject), 
+                     data = df,
+                     #family = bernoulli,
+                     warmup = 2000,
+                     iter = 3000,    
+                     cores = 4,
+                     chains = 4,
+                     backend='cmdstan')
+
+conditional_effects(accuracy_model6)
+bayestestR::describe_posterior(accuracy_model6, ci=(.89))
+
+# Accuracy - Groups:
+
+accuracy_model7<-brm(accuracy ~ group, 
+                     data = df,
+                     #family = bernoulli,
+                     warmup = 2000,
+                     iter = 3000,    
+                     cores = 4,
+                     chains = 4,
+                     backend='cmdstan')
+
+conditional_effects(accuracy_model7)
+bayestestR::describe_posterior(accuracy_model7, ci=(.89))
 

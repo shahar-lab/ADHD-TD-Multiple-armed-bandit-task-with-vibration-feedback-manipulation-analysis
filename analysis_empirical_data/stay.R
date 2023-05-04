@@ -67,6 +67,21 @@ conditional_effects(stay_model2, "reward_oneback:group", conditions = conditions
 bayestestR::describe_posterior(stay_model2, ci=(.89))
 
 
+# Stay - Reward Oneback:
+
+stay_model5<-brm(stay ~ reward_oneback +(reward_oneback| subject), 
+                 data = df,
+                 #family = bernoulli,
+                 warmup = 2000,
+                 iter = 3000,    
+                 cores = 4,
+                 chains = 4,
+                 backend='cmdstan')
+
+conditional_effects(stay_model5)
+bayestestR::describe_posterior(stay_model5, ci=(.89))
+
+
 # Stay key model1 - irrelevant learning
 
 stay_model3<-glmer(stay_key~ reward_oneback*condition_oneback*group +(1|subject),
@@ -87,7 +102,26 @@ summary(stay_model3)
 anova(stay_model3)
 
 # Stay key model1 - irrelevant learning
-stay_model4<-brm(stay ~ reward_oneback*condition*group +(reward_oneback*condition| subject), 
+stay_key1<-brm(stay_key ~ reward_oneback*condition*group +(reward_oneback*condition| subject),
+                 data = df|>mutate(reward_oneback = factor(reward_oneback)),
+                 family = bernoulli,
+                 warmup = 1000,
+                 iter = 2000,    
+                 cores = 4,
+                 chains = 4,
+                 backend='cmdstan')
+
+# View results:
+
+conditional_effects(stay_key1)
+conditions <- make_conditions(stay_key1, "condition")
+conditional_effects(stay_key1, "reward_oneback:group", conditions = conditions)
+
+#describe_posterior(stay_model4)
+bayestestR::describe_posterior(stay_key1, ci=(.89))
+
+# Stay key - Group
+stay_key2<-brm(stay ~ reward_oneback*condition*group +(reward_oneback*condition| subject), 
                  data = df,
                  #family = bernoulli,
                  warmup = 2000,
@@ -95,12 +129,3 @@ stay_model4<-brm(stay ~ reward_oneback*condition*group +(reward_oneback*conditio
                  cores = 4,
                  chains = 4,
                  backend='cmdstan')
-
-# View results:
-
-conditional_effects(stay_model4)
-conditions <- make_conditions(stay_model4, "condition")
-conditional_effects(stay_model4, "reward_oneback:group", conditions = conditions)
-
-#describe_posterior(stay_model4)
-bayestestR::describe_posterior(stay_model4, ci=(.89))
