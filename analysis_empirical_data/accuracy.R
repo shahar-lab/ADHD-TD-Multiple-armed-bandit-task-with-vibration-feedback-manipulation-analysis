@@ -114,6 +114,7 @@ cont= emmeans::contrast(em, list('off_adhd'=c(0,0,0,0,0,0,-1,1,0,0,0,0),
                                  ))
 
 hpd.summary(cont,0.89)
+eff_size(cont, method = "pd", edf = 8)
 
 # View results:
 conditional_effects(accuracy_model4)
@@ -168,3 +169,71 @@ accuracy_model7<-brm(accuracy ~ group,
 conditional_effects(accuracy_model7)
 bayestestR::describe_posterior(accuracy_model7, ci=(.89))
 
+
+# Create brm accuracy by difficulty model:
+
+accuracy_model8<-brm(accuracy ~ delta_exp_value*condition*group +(delta_exp_value*condition| subject), 
+                     data = df ,
+                     #family = bernoulli,
+                     warmup = 2000,
+                     iter = 3000,    
+                     cores = 4,
+                     chains = 4,
+                     backend='cmdstan')
+
+# View results:
+conditional_effects(accuracy_model8)
+conditions <- make_conditions(accuracy_model8, "condition")
+conditional_effects(accuracy_model8, "delta_exp_value:group", conditions = conditions)
+
+bayestestR::describe_posterior(accuracy_model8, ci=(.89))
+
+# Accuracy - first 5 trials
+
+accuracy_model9<-brm(accuracy ~ trial*condition*group +(delta_exp_value*condition| subject), 
+                     data = df %>% filter(trial==1 | trial==2),
+                     #family = bernoulli,
+                     warmup = 2000,
+                     iter = 3000,    
+                     cores = 4,
+                     chains = 4,
+                     backend='cmdstan')
+
+
+
+
+# Accuracy - first 5 trials
+
+accuracy_model9<-brm(accuracy ~ trial*condition*group +(delta_exp_value*condition| subject), 
+                     data = df|>filter(trial==1|trial==2|trial==3|trial==4|trial==5),
+                     #family = bernoulli,
+                     warmup = 2000,
+                     iter = 3000,    
+                     cores = 4,
+                     chains = 4,
+                     backend='cmdstan')
+
+# View results:
+conditional_effects(accuracy_model9)
+conditions <- make_conditions(accuracy_model9, "condition")
+conditional_effects(accuracy_model9, "trial:group", conditions = conditions)
+
+bayestestR::describe_posterior(accuracy_model9, ci=(.89))
+
+# Accuracy - first 10 trials
+
+accuracy_model10<-brm(accuracy ~ trial*condition*group +(delta_exp_value*condition| subject), 
+                     data = df|>filter(df$trial==1|df$trial==2|df$trial==3|df$trial==4|df$trial==5|df$trial==6|df$trial==7|df$trial==8|df$trial==9|df$trial==10),
+                     #family = bernoulli,
+                     warmup = 2000,
+                     iter = 3000,    
+                     cores = 4,
+                     chains = 4,
+                     backend='cmdstan')
+
+# View results:
+conditional_effects(accuracy_model10)
+conditions <- make_conditions(accuracy_model10, "condition")
+conditional_effects(accuracy_model10, "trial:group", conditions = conditions)
+
+bayestestR::describe_posterior(accuracy_model10, ci=(.89))

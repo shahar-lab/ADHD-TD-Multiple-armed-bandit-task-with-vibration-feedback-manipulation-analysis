@@ -103,7 +103,7 @@ anova(stay_model3)
 
 # Stay key model1 - irrelevant learning
 stay_key1<-brm(stay_key ~ reward_oneback*condition*group +(reward_oneback*condition| subject),
-                 data = df|>mutate(reward_oneback = factor(reward_oneback)),
+                 data = df|>filter(reward_oneback = factor(reward_oneback)),
                  family = bernoulli,
                  warmup = 1000,
                  iter = 2000,    
