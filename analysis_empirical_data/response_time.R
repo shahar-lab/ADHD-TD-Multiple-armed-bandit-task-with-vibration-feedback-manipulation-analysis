@@ -1,8 +1,12 @@
+### Multiple-armed bandit task with vibration - Response Times results:
+
+
 rm(list=ls())
 #source('./functions/my_packages.R')
 load('./data/empirical_data/df.rdata')
 
-# Load libraries:
+
+### Load libraries:
 library(dplyr)
 library(ggplot2)
 library(effects)
@@ -10,9 +14,14 @@ library(brms)
 library(rstan)
 library(bayestestR)
 library(cmdstanr)
+library(lme4)
+library(emmeans)
+library(distributional)
+library(ggdist)
+library(tidybayes)
 
 
-# Organize data:
+### Organize data:
 
 df$condition = relevel(df$condition, ref = 'off')
 contrasts(df$condition)
@@ -20,9 +29,10 @@ df$group = relevel(df$group, ref = 'td')
 contrasts(df$group)
 
 
-# Create brm response time by difficulty model:
+### RT by delta_exp_value, condition and group:
 
-time_model1<-brm(rt ~ delta_exp_value*condition*group +(delta_exp_value*condition| subject),
+# Create brm RT model:
+rt_model1<-brm(rt ~ delta_exp_value*condition*group +(delta_exp_value*condition| subject),
            data = df|>filter(block_phase=='second_half'),
            family = exgaussian,
            warmup = 2000,
@@ -32,17 +42,37 @@ time_model1<-brm(rt ~ delta_exp_value*condition*group +(delta_exp_value*conditio
            backend='cmdstan')
 
 # View results:
+conditional_effects(rt_model1)
+conditions <- make_conditions(rt_model1, "condition")
+conditional_effects(rt_model1, "delta_exp_value:group", conditions = conditions)
 
-conditional_effects(time_model1)
-conditions <- make_conditions(time_model1, "condition")
-conditional_effects(time_model1, "delta_exp_value:group", conditions = conditions)
+bayestestR::describe_posterior(rt_model1, ci=(.89))
 
-bayestestR::describe_posterior(time_model1, ci=(.89))
-#describe_posterior(time_model1)
 
-# Create brm time by reward model:
+### RT by condition and group:
 
-time_model2 <-brm(rt ~ reward_oneback*condition*group +(reward_oneback*condition| subject), 
+# Create brm RT model:
+rt_model2<-brm(rt ~ condition*group +(condition| subject),
+                 data = df|>filter(block_phase=='second_half'),
+                 family = exgaussian,
+                 warmup = 2000,
+                 iter = 3000,    
+                 cores = 4,
+                 chains = 4,
+                 backend='cmdstan')
+
+# View results:
+conditional_effects(rt_model2)
+conditions <- make_conditions(rt_model2, "condition")
+conditional_effects(rt_model2, "delta_exp_value:group", conditions = conditions)
+
+bayestestR::describe_posterior(rt_model2, ci=(.89))
+
+
+### RT by reward_oneback, condition and group:
+
+# Create brm RT model:
+rt_model3 <-brm(rt ~ reward_oneback*condition*group +(reward_oneback*condition| subject), 
            data = df |> filter(stay == 100),
            family = exgaussian,
            warmup = 500,
@@ -52,17 +82,17 @@ time_model2 <-brm(rt ~ reward_oneback*condition*group +(reward_oneback*condition
            backend='cmdstan')
 
 # View results:
+conditional_effects(rt_model3)
+conditions <- make_conditions(rt_model3, "condition")
+conditional_effects(rt_model3, "reward_oneback:group", conditions = conditions)
 
-conditional_effects(time_model2)
-conditions <- make_conditions(time_model2, "condition")
-conditional_effects(time_model2, "reward_oneback:group", conditions = conditions)
-
-describe_posterior(time_model2)
+bayestestR::describe_posterior(rt_model3, ci=(.89))
 
 
-# RT - delta_exp_value
+### RT by delta_exp_value:
 
-time_model3<-brm(rt ~ delta_exp_value +(delta_exp_value| subject),
+# Create brm RT model:
+rt_model4<-brm(rt ~ delta_exp_value +(delta_exp_value| subject),
                  data = df|>filter(block_phase=='second_half'),
                  family = exgaussian,
                  warmup = 2000,
@@ -72,14 +102,14 @@ time_model3<-brm(rt ~ delta_exp_value +(delta_exp_value| subject),
                  backend='cmdstan')
 
 # View results:
+conditional_effects(rt_model4)
+bayestestR::describe_posterior(rt_model4, ci=(.89))
 
-conditional_effects(time_model3)
-bayestestR::describe_posterior(time_model3, ci=(.89))
 
+### RT by group:
 
-# RT - Groups
-
-time_model4<-brm(rt ~ group,
+# Create brm RT model:
+rt_model5<-brm(rt ~ group,
                  data = df|>filter(block_phase=='second_half'),
                  family = exgaussian,
                  warmup = 2000,
@@ -88,13 +118,15 @@ time_model4<-brm(rt ~ group,
                  chains = 4,
                  backend='cmdstan')
 
-conditional_effects(time_model4)
-bayestestR::describe_posterior(time_model4, ci=(.89))
+# View results:
+conditional_effects(rt_model5)
+bayestestR::describe_posterior(rt_model5, ci=(.89))
 
 
-# Create brm response time by difficulty model:
+### RT by delta_level, condition and group:
 
-time_model5<-brm(rt ~ delta_level*condition*group +(delta_level*condition| subject),
+# Create brm RT model:
+rt_model6<-brm(rt ~ delta_level*condition*group +(delta_level*condition| subject),
                  data = df|>filter(block_phase=='second_half'),
                  family = exgaussian,
                  warmup = 2000,
@@ -103,12 +135,13 @@ time_model5<-brm(rt ~ delta_level*condition*group +(delta_level*condition| subje
                  chains = 4,
                  backend='cmdstan')
 
-conditions <- make_conditions(time_model5, "condition")
-conditional_effects(time_model5, "delta_level:group", conditions = conditions)
+# View results:
+conditions <- make_conditions(rt_model6, "condition")
+conditional_effects(rt_model6, "delta_level:group", conditions = conditions)
+bayestestR::describe_posterior(rt_model6, ci=(.89))
 
-# emmeans
-
-em=emmeans::emmeans(time_model5,~delta_level*condition*group)
+# emmeans:
+em=emmeans::emmeans(rt_model6,~delta_level*condition*group)
 cont= emmeans::contrast(em, list('off_adhd'=c(0,0,0,0,0,0,-1,1,0,0,0,0),
                                  'off_td'=c(-1,1,0,0,0,0,0,0,0,0,0,0),
                                  'off'=c(-1,1,0,0,0,0,-1,1,0,0,0,0),
@@ -121,4 +154,40 @@ cont= emmeans::contrast(em, list('off_adhd'=c(0,0,0,0,0,0,-1,1,0,0,0,0),
 ))
 
 hpd.summary(cont,0.89)
+
+
+### RT by delta_level, condition and group, accurate trials:
+
+# Create brm RT model:
+rt_model7<-brm(rt ~ delta_level*condition*group +(delta_level*condition| subject),
+                 data = df|>filter(block_phase=='second_half')|>filter(accuracy == 1),
+                 family = exgaussian,
+                 warmup = 5000,
+                 iter = 6000,    
+                 cores = 4,
+                 chains = 4,
+                 backend='cmdstan')
+
+# View results:
+conditions <- make_conditions(rt_model7, "condition")
+conditional_effects(rt_model7, "delta_level:group", conditions = conditions)
+bayestestR::describe_posterior(rt_model7, ci=(.89))
+
+
+### RT by delta_exp_value, condition and group, accurate trials:
+
+# Create brm RT model:
+rt_model8<-brm(rt ~ delta_exp_value*condition*group +(delta_exp_value*condition| subject),
+                 data = df|>filter(accuracy == 1),
+                 family = exgaussian,
+                 warmup = 5000,
+                 iter = 6000,    
+                 cores = 4,
+                 chains = 4,
+                 backend='cmdstan')
+
+# View results:
+conditions <- make_conditions(rt_model8, "condition")
+conditional_effects(rt_model8, "delta_exp_value:group", conditions = conditions)
+bayestestR::describe_posterior(rt_model8, ci=(.89))
 
