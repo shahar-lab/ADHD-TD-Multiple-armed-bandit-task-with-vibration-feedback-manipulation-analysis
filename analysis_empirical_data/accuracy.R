@@ -248,6 +248,22 @@ cont |> gather_emmeans_draws() |> describe_posterior()
 
 hpd.summary(cont,0.89)
 
+# Plot intercepts:
+params = insight::get_parameters(accuracy_model9)
+
+td = params$b_Intercept
+
+td_off = params$b_Intercept + params$b_delta_exp_value
+
+adhd_off = params$b_Intercept + params$b_delta_exp_value + params$b_groupadhd
+
+
+
+ggplot(params,aes(td)) + stat_halfeye() + ggtitle("TD Accuracy Intercept - Off") + scale_x_continuous(limits = c(0.45, 0.6))
+
+ggplot(params,aes(td_off)) + stat_halfeye() + ggtitle("TD Accuracy Intercept - Off") + scale_x_continuous(limits = c(0.45, 0.6))
+
+
 
 ### Accuracy by delta_level (easy/hard), condition and group:
 
