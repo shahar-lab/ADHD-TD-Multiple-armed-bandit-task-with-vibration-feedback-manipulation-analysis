@@ -209,6 +209,14 @@ accuracy_model8<-brm(accuracy ~ group,
 conditional_effects(accuracy_model8)
 bayestestR::describe_posterior(accuracy_model8, ci=(.89))
 
+# Plot intercepts:
+params = insight::get_parameters(accuracy_model8)
+
+td = params$b_Intercept
+adhd = params$b_Intercept + params$b_groupadhd
+
+ggplot(params,aes(td)) + stat_halfeye() + ggtitle("TD Accuracy Intercept") + scale_x_continuous(limits = c(0.45, 0.6))
+ggplot(params,aes(adhd)) + stat_halfeye() + ggtitle("ADHD Accuracy Intercept") + scale_x_continuous(limits = c(0.45, 0.6))
 
 
 ### Accuracy by delta_exp_value, condition and group:
