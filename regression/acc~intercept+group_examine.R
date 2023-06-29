@@ -1,6 +1,8 @@
 load('./data/regression/acc~1+group.rdata')
 
-describe_posterior(model)
+conditional_effects(model)
+bayestestR::describe_posterior(model, ci=(.89))
+
 
 model |>
   emmeans(~ group,
@@ -8,5 +10,5 @@ model |>
           level = 0.89,
           re_formula = NA) |>
   
-  contrast(list('group effect '=c(-1,+1)))
+  contrast(list('group effect'=c(-1,+1)))
 
