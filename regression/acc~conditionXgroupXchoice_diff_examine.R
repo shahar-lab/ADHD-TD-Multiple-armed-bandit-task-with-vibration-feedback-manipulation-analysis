@@ -35,3 +35,10 @@ cont3= emmeans::contrast(em, list('adhd_vs_td_vibration_vs_off'=c(1,-0.5,-0.5,-1
 
 cont3 |> gather_emmeans_draws() |> describe_posterior()
 hpd.summary(cont3,0.89)
+
+# 3-Way - ADHD - Choice vs Outcome:
+cont4= emmeans::contrast(em, list('adhd_choice_vs_outcome'=c(0,0,0,0,-1,1)))
+cont4 |> gather_emmeans_draws() |> describe_posterior()
+hpd.summary(cont4,0.89)
+
+
