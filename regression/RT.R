@@ -69,8 +69,8 @@ fit <- brm(
   stanvars = exg_stanvars,
   # Sampler
   backend = "cmdstanr",
-  iter = 6000, 
-  warmup = 3000, 
+  iter = 8000, 
+  warmup = 4000, 
   refresh = 0,
   cores = 4
 )
